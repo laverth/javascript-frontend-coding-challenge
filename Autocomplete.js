@@ -1,6 +1,8 @@
+import axios from "axios";
+
 export default class Autocomplete {
   constructor(rootEl, options = {}) {
-    options = Object.assign({ numOfResults: 10, data: [] }, options);
+    options = Object.assign({ numOfResults: 10, endpointURL: "" }, options);
     Object.assign(this, { rootEl, options });
     this.selectedIndex = -1;
     document.addEventListener("keyup", this.checkKey.bind(this));
@@ -42,27 +44,36 @@ export default class Autocomplete {
     }
   }
 
-  onQueryChange(query) {
+  async onQueryChange(query) {
     // Get data for the dropdown
-    let results = this.getResults(query, this.options.data);
+
+    let results = await this.getResults(query);
+    console.log("results", results);
     this.results = results.slice(0, this.options.numOfResults);
     this.selectedIndex = -1;
     this.updateDropdown();
+    return;
   }
 
   /**
    * Given an array and a query, return a filtered array based on the query.
    */
-  getResults(query, data) {
+  async getResults(query) {
     if (!query) return [];
-
-    // Filter for matching strings
-    let results = data.filter(item => {
-      return item.text.toLowerCase().includes(query.toLowerCase());
-    });
-
-    console.log(results);
-    return results;
+    if (this.options.endpointURL) {
+      console.log(this.options.endpointURL);
+      const wes = await axios(this.options.endpointURL.concat(query));
+      if (wes.status === 200) {
+        return wes.data.items.map(item => {
+          item.text = item.login;
+          return item;
+        });
+      }
+    } else if (this.options.data) {
+      return this.options.data.filter(item => {
+        return item.text.toLowerCase().includes(query.toLowerCase());
+      });
+    }
   }
 
   updateDropdown() {
@@ -76,6 +87,7 @@ export default class Autocomplete {
     this.results.forEach(result => {
       index += 1;
       const el = document.createElement("li");
+
       Object.assign(el, {
         className: index === this.selectedIndex ? "selected-result" : "result",
         textContent: result.text
