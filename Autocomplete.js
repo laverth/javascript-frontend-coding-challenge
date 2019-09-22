@@ -2,7 +2,7 @@ import axios from "axios";
 
 export default class Autocomplete {
   constructor(rootEl, options = {}) {
-    options = Object.assign({ numOfResults: 10, endpointURL: "", inputId : "" }, options);
+    options = Object.assign({ numOfResults: 10, endpointURL: ""}, options);
     Object.assign(this, { rootEl, options });
     this.selectedIndex = -1;
     document.addEventListener("keyup", this.checkKey.bind(this));
