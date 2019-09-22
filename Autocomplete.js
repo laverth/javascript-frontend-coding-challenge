@@ -2,7 +2,7 @@ import axios from "axios";
 
 export default class Autocomplete {
   constructor(rootEl, options = {}) {
-    options = Object.assign({ numOfResults: 10, endpointURL: "" }, options);
+    options = Object.assign({ numOfResults: 10, endpointURL: "", inputId : "" }, options);
     Object.assign(this, { rootEl, options });
     this.selectedIndex = -1;
     document.addEventListener("keyup", this.checkKey.bind(this));
@@ -23,36 +23,39 @@ export default class Autocomplete {
       this.selectIndex();
     }
     this.updateDropdown();
-    console.log("current:", this.selectedIndex);
   }
 
   increaseIndex() {
     if (this.selectedIndex < this.results.length - 1) {
       this.selectedIndex += 1;
+      this.changeInputToSelectedUser()
     }
   }
-
+  
   decreaseIndex() {
     if (this.selectedIndex >= 0) {
       this.selectedIndex -= 1;
+      this.changeInputToSelectedUser()
     }
   }
-
+  
   selectIndex() {
     if (this.selectedIndex >= 0 && this.selectedIndex < this.results.length) {
-      console.log(this.results[this.selectedIndex]);
+      this.options.onSelect(this.results[this.selectedIndex].text)
     }
+  }
+  
+  changeInputToSelectedUser(){    
+    this.inputEl.value = this.results[this.selectedIndex].text;
   }
 
   async onQueryChange(query) {
     // Get data for the dropdown
 
     let results = await this.getResults(query);
-    console.log("results", results);
     this.results = results.slice(0, this.options.numOfResults);
     this.selectedIndex = -1;
     this.updateDropdown();
-    return;
   }
 
   /**
@@ -61,13 +64,12 @@ export default class Autocomplete {
   async getResults(query) {
     if (!query) return [];
     if (this.options.endpointURL) {
-      console.log(this.options.endpointURL);
       const wes = await axios(this.options.endpointURL.concat(query));
       if (wes.status === 200) {
         return wes.data.items.map(item => {
           const mappedItem = {
             text: item.login,
-            value: item
+            value: item.id
           };
 
           return mappedItem;
