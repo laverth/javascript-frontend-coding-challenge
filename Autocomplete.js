@@ -65,14 +65,18 @@ export default class Autocomplete {
       const wes = await axios(this.options.endpointURL.concat(query));
       if (wes.status === 200) {
         return wes.data.items.map(item => {
-          item.text = item.login;
-          return item;
+          const mappedItem = {
+            text: item.login,
+            value: item
+          };
+
+          return mappedItem;
         });
       }
     } else if (this.options.data) {
-      return this.options.data.filter(item => {
-        return item.text.toLowerCase().includes(query.toLowerCase());
-      });
+      return this.options.data.filter(item =>
+        item.text.toLowerCase().includes(query.toLowerCase())
+      );
     }
   }
 
