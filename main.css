@@ -32,6 +32,11 @@ ul {
 .result:hover {
   background-color: #eee;
 }
+.selected-result {
+  padding: 5px;
+  cursor: pointer;
+  background-color: #b7b7b7;
+}
 
 form {
   display: flex;
