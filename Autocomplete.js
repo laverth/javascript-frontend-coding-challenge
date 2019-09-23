@@ -15,14 +15,15 @@ export default class Autocomplete {
     if (event.keyCode == "38") {
       // up arrow
       this.decreaseIndex();
+      this.updateDropdown();
     } else if (event.keyCode == "40") {
       // down arrow
       this.increaseIndex();
+      this.updateDropdown();
     } else if (event.keyCode == "13") {
       // enter
       this.selectIndex();
     }
-    this.updateDropdown();
   }
 
   increaseIndex() {
@@ -51,7 +52,6 @@ export default class Autocomplete {
 
   async onQueryChange(query) {
     // Get data for the dropdown
-
     let results = await this.getResults(query);
     this.results = results.slice(0, this.options.numOfResults);
     this.selectedIndex = -1;
@@ -66,6 +66,7 @@ export default class Autocomplete {
     if (this.options.endpointURL) {
       const wes = await axios(this.options.endpointURL.concat(query));
       if (wes.status === 200) {
+        
         return wes.data.items.map(item => {
           const mappedItem = {
             text: item.login,
@@ -76,6 +77,7 @@ export default class Autocomplete {
         });
       }
     } else if (this.options.data) {
+      
       return this.options.data.filter(item =>
         item.text.toLowerCase().includes(query.toLowerCase())
       );
@@ -107,6 +109,7 @@ export default class Autocomplete {
 
       fragment.appendChild(el);
     });
+    
     return fragment;
   }
 
